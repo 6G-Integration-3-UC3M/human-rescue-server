@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// When changing this file, run `npx prisma generate` to generate the types for pothos
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator pothos {
+  provider = "prisma-pothos-types"
+}
+
+model User {
+  id               Int    @id @default(autoincrement())
+  name             String
+  email            String    @unique
+  emailVerifiedAt  DateTime?
+  emailVerifToken  String?
+  password         String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  drones           DroneUser[]
+  missions         MissionUser[]
+}
+
+model Drone {
+  id               Int    @id @default(autoincrement())
+  ip               String    @unique
+  secret           String
+  name             String
+  status           String
+  location         String?
+  batteryLevel     Int?
+  createdAt        DateTime  @default(now())
+  lastSeenAt       DateTime?
+  users            DroneUser[]
+  missions         MissionDrone[]
+  alerts           Alert[]
+  detections       Detection[]
+}
+
+model DroneUser {
+  droneId          Int
+  userId           Int
+  role             String
+  createdAt        DateTime  @default(now())
+
+  drone            Drone     @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+  @@id([droneId, userId])
+  @@index([userId])
+}
+
+model Alert {
+  id               Int           @id @default(autoincrement())
+  droneId          Int?
+  missionId        Int?
+  detectionId      Int?
+  ruleId           Int?
+
+  type             String
+  message          String
+  extra            String?
+  severity         String
+  isAcknowledged   Int           @default(0)
+  createdAt        DateTime      @default(now())
+
+  drone            Drone?         @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  mission          Mission?      @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  detection        Detection?    @relation(fields: [detectionId], references: [id], onDelete: Cascade)
+  rule             Rule?         @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([droneId])
+  @@index([missionId])
+  @@index([detectionId])
+  @@index([ruleId])
+}
+
+model Rule {
+  id               Int           @id @default(autoincrement())
+  missionId        Int
+  condition        String        // Define your condition here (e.g., objectName = 'person' with a probability > 0.5)
+  action           String        // Action to perform when condition is met (e.g., create alert)
+  priority         Int           @default(1) // Priority of the rule (from 0 = less important, to 10 = most important)
+  isActive         Int           @default(1) // Whether the rule is active (0 = false, 1 = true)
+  createdAt        DateTime      @default(now())
+
+  mission          Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  alerts           Alert[]
+
+  @@index([missionId])
+}
+
+model Mission {
+  id               Int           @id @default(autoincrement())
+  name             String        @unique
+  description      String?
+  startTime        DateTime      // Start time of the mission
+  endTime          DateTime?     // End time of the mission
+  status           String        // Status of the mission (e.g., planned, ongoing, completed)
+  createdAt        DateTime      @default(now())
+  drones           MissionDrone[]
+  users            MissionUser[]
+  alerts           Alert[]
+  rules            Rule[]
+  detections       Detection[]
+
+  @@index([id])
+}
+
+model MissionDrone {
+  missionId        Int
+  droneId          Int
+  createdAt        DateTime      @default(now())
+
+  mission          Mission       @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  drone            Drone         @relation(fields: [droneId], references: [id], onDelete: Cascade)
+
+  @@id([missionId, droneId])
+  @@index([droneId])
+}
+
+model MissionUser {
+  missionId        Int
+  userId           Int
+  role             String
+  createdAt        DateTime       @default(now())
+
+  mission          Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([missionId, userId])
+  @@index([userId])
+}
+
+model Detection {
+  id               Int           @id @default(autoincrement())
+  droneId          Int
+  missionId        Int
+  detectedObject   String        // Name of the detected object (e.g., 'human')
+  confidence       Float         // Confidence score of the detection
+  imageUrl         String?       // URL of the image where the object was detected
+  timestamp        DateTime      @default(now()) // Time when the detection was made
+
+  drone            Drone         @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  mission          Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  alerts           Alert[]
+
+  @@index([droneId])
+  @@index([missionId])
+}

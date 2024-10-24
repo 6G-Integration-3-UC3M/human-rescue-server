@@ -1,0 +1,11 @@
+
+## Data Model
+
+The model of the server schema used is the following:
+
+![Database Schema](https://private-user-images.githubusercontent.com/118762770/349137141-1a29ef6c-fe1b-46ea-9140-701704dd6d09.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjExNDA3ODYsIm5iZiI6MTcyMTE0MDQ4NiwicGF0aCI6Ii8xMTg3NjI3NzAvMzQ5MTM3MTQxLTFhMjllZjZjLWZlMWItNDZlYS05MTQwLTcwMTcwNGRkNmQwOS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQwNzE2JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDcxNlQxNDM0NDZaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT01ZmZmZDBmYjMzMGMzNTI2YzRiMTIxMTFhNzA2YjUxZDY2MTFjYjA3MGNmMGYxMTU3ZDhmMWJkNDg0NGNkZGQyJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9.QHYWtuJKpbJRYDT_KCZj_gsDAe0GfG5jSwkq51fZRcU)
+
+The main objects are:
+- Users: which are the people that log in to the system.
+- Drones: which are the drones that are registered in the system.
+- Missions: which are the missions that are created in the system and performed with multiple drones.
