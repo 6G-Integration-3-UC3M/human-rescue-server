@@ -34,13 +34,6 @@ export default function Dashboard() {
     return (
         <MainLayout>
             <div className="mb-4">
-                <p>Member Area</p>
-                <p>Signed in as&nbsp;
-                    {status === 'authenticated'
-                    ? session?.user?.email
-                    : '...'
-                    }
-                </p>
                 <ListDrones drones={drones}/>
                 <ListMissions missions={missions}/>
             </div>

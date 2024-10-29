@@ -1,41 +1,42 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-
 import { checkRulesForMission } from '@/actions/rule';
-
 import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
 
 const detectionSchema = z.object({
-    droneId: z.number().int().positive(),
+    droneIp: z.string().min(1),
     secret: z.string().min(1),
-    missionId: z.number().int().positive(),
+    missionName: z.string().min(1),
     detectedObject: z.string().min(1),
     confidence: z.number().min(0).max(1),
+    // Assuming you want to add the timestamp as well
+    timestamp: z.string().optional(), // Adjust if you have a specific format
 });
 
-export async function POST(req) {
+export async function POST(req: Request) {
     try {
         // Parse form data
         const formData = await req.formData();
 
         // Get fields from form data
-        const droneId = parseInt(formData.get('droneId'));
+        const droneIp = formData.get('droneIp');
         const secret = formData.get('secret');
-        const missionId = parseInt(formData.get('missionId'));
+        const missionName = formData.get('missionName');
         const detectedObject = formData.get('detectedObject');
         const confidence = parseFloat(formData.get('confidence'));
         const imageFile = formData.get('image');
 
         // Validate input
         const validationResult = detectionSchema.safeParse({
-            droneId,
+            droneIp,
             secret,
-            missionId,
+            missionName,
             detectedObject,
             confidence,
+            timestamp: new Date().toISOString(), // Add current timestamp
         });
 
         if (!validationResult.success) {
@@ -50,16 +51,28 @@ export async function POST(req) {
             );
         }
 
-        const droneSecret = await prisma.drone.findUnique({
+        // Check if the drone exists by IP and retrieve its ID and secret
+        const drone = await prisma.drone.findUnique({
             where: {
-                id: parseInt(droneId),
+                ip: droneIp,
             },
             select: {
+                id: true,
                 secret: true,
             },
         });
 
-        if (!droneSecret || droneSecret.secret !== secret) {
+        if (!drone) {
+            return new Response(JSON.stringify({ message: 'Drone not found' }), {
+                status: 404,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        }
+
+        // Validate the drone secret
+        if (drone.secret !== secret) {
             return new Response(JSON.stringify({ message: 'Invalid drone secret' }), {
                 status: 403,
                 headers: {
@@ -68,7 +81,28 @@ export async function POST(req) {
             });
         }
 
-        // TODO: Check if droneId and missionId exist and if user has persmission
+        // Check if the mission exists and retrieve its ID
+        const mission = await prisma.mission.findUnique({
+            where: {
+                name: missionName,
+                drones: {
+                    some: { droneId: drone.id },
+                },
+            },
+            select: {
+                id: true,
+                name: true,
+            },
+        });
+
+        if (!mission) {
+            return new Response(JSON.stringify({ message: 'Mission not found' }), {
+                status: 404,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        }
 
         // Save the image locally
         const uploadsDir = path.join(process.cwd(), 'prisma', 'uploads');
@@ -86,18 +120,20 @@ export async function POST(req) {
         // Construct the image URL
         const imageUrl = `http://localhost:3000/uploads/${imageName}`;
 
+        // Create detection record in the database
         const detection = await prisma.detection.create({
             data: {
-                droneId,
-                missionId,
-                detectedObject,
-                confidence,
-                imageUrl,
+                droneId: drone.id,
+                missionId: mission.id,
+                detectedObject: detectedObject,
+                confidence: confidence,
+                imageUrl: imageUrl,
+                timestamp: new Date().toISOString(), // Add current timestamp if required
             },
         });
 
-        // check detections to create a new alert
-        checkRulesForMission(missionId, detection);
+        // Check detections to create a new alert
+        checkRulesForMission(mission.id, detection);
 
         return new Response(JSON.stringify(detection), {
             status: 201,

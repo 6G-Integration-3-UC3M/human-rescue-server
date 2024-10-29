@@ -15,8 +15,8 @@ const userData: Prisma.UserCreateInput[] = [
 const droneData: Prisma.DroneCreateInput[] = [
     {
         ip: "12.12.12.13",
-        secret: "LKDJFSLDF",
-        name: "Comeback Kid",
+        secret: "DONT_SHARE_THIS_SECRET",
+        name: "Sky Watcher",
         status: "ACTIVE",
         batteryLevel: 85,
         users: {
@@ -35,8 +35,8 @@ const droneData: Prisma.DroneCreateInput[] = [
     {
         ip: "12.12.12.14",
         secret: "MNBVCXZQWERTYUIOP",
-        name: "Sky Watcher",
-        status: "INACTIVE",
+        name: "Sky Watcher 2",
+        status: "ACTIVE",
         batteryLevel: 50,
         users: {
             create: [
@@ -53,9 +53,9 @@ const droneData: Prisma.DroneCreateInput[] = [
     },
 ];
 
-const missionData: Prisma.MissionCreateInput[] = [
+const missionData: Prisma.MissionCreateInput[] =[
     {
-        name: "Recon Mission Alpha",
+        name: "Apollo Mission 1",
         description: "First reconnaissance mission",
         startTime: new Date(),
         status: "ONGOING",
@@ -70,73 +70,22 @@ const missionData: Prisma.MissionCreateInput[] = [
                 },
             ],
         },
-    },
-    {
-        name: "Surveillance Mission Beta",
-        description: "Surveillance mission",
-        startTime: new Date("2024-08-01T00:00:00.000Z"),
-        status: "PLANNED",
-        drones: {
-            create: [{ drone: { connect: { ip: "12.12.12.14" } } }],
-        },
-        users: {
-            create: [
-                {
-                    user: { connect: { email: "carlotabianca266@gmail.com" } },
-                    role: "OBSERVER",
-                },
-            ],
-        },
-    },
+    }
 ];
 
 const alertData: Prisma.AlertCreateInput[] = [
-    {
-        type: "Battery Low",
-        message: "Drone battery is below 20%",
-        severity: "high",
-        drone: { connect: { ip: "12.12.12.13" } },
-        mission: { connect: { name: "Recon Mission Alpha" } },
-    },
-    {
-        type: "Human Detection",
-        message: "Person detected with 95% confidence",
-        severity: "medium",
-        drone: { connect: { ip: "12.12.12.13" } },
-        mission: { connect: { name: "Recon Mission Alpha" } },
-    },
 ];
 
 const ruleData: Prisma.RuleCreateInput[] = [
     {
-        mission: { connect: { name: "Recon Mission Alpha" } },
-        condition: '{"detectedObject": "person", "confidence": { "operator": ">=", "value": 0.8 }}',
+        mission: { connect: { name: "Apollo Mission 1" } },
+        condition: '{"detectedObject": "person", "confidence": { "operator": ">=", "value": 0.5 }}',
         action: "create alert",
         priority: 5,
-    },
-    {
-        mission: { connect: { name: "Surveillance Mission Beta" } },
-        condition: '{"detectedObject": "person", "confidence": { "operator": ">=", "value": 0.8 }}',
-        action: "send notification",
-        priority: 8,
     },
 ];
 
 const detectionData: Prisma.DetectionCreateInput[] = [
-    {
-        drone: { connect: { ip: "12.12.12.13" } },
-        mission: { connect: { name: "Recon Mission Alpha" } },
-        detectedObject: "Person",
-        confidence: 0.95,
-        imageUrl: "http://example.com/image1.jpg",
-    },
-    {
-        drone: { connect: { ip: "12.12.12.14" } },
-        mission: { connect: { name: "Recon Mission Alpha" } },
-        detectedObject: "Car",
-        confidence: 0.8,
-        imageUrl: "http://example.com/image2.jpg",
-    },
 ];
 
 export async function main() {
