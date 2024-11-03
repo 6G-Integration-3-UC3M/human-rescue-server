@@ -16,7 +16,7 @@ import { findAlertsForMission } from "@/actions/alert";
 import { findRulesForMission } from "@/actions/rule";
 
 export default function Mission() {
-    const { data: session, status } = useSession()
+    const { data: session, status } = useSession();
     const searchParams = useSearchParams();
     const [drones, setDrones] = useState([]);
     const [alerts, setAlerts] = useState([]);
@@ -30,26 +30,56 @@ export default function Mission() {
                 return;
             }
 
-            findDronesForMission(id).then((res) => {
-                setDrones(res);
-            });
+            const fetchData = async () => {
+                const dronesRes = await findDronesForMission(id);
+                setDrones(dronesRes);
 
+                const alertsRes = await findAlertsForMission(id);
+                setAlerts(alertsRes);
+
+                const rulesRes = await findRulesForMission(id);
+                setRules(rulesRes);
+            };
+
+            fetchData();
+
+            // Set up an interval to refresh alerts every 5 seconds
+            const interval = setInterval(() => {
+                findAlertsForMission(id).then((res) => {
+                    setAlerts(res);
+                });
+            }, 5000);
+
+            // Cleanup interval on component unmount
+            return () => clearInterval(interval);
+        }
+    }, [status]);
+
+    // Function to refresh alerts manually
+    const refreshAlerts = () => {
+        const id = searchParams.get('id');
+        if (id && !isNaN(parseInt(id))) {
             findAlertsForMission(id).then((res) => {
                 setAlerts(res);
             });
-
-            findRulesForMission(id).then((res) => {
-                setRules(res);
-            });
         }
-    }, [status]);
+    };
 
     return (
         <MainLayout>
             <div className="flex flex-col">
                 <div className="mb-4">
                     <ListDrones drones={drones} />
-                    <ListAlerts alerts={alerts} />
+                    <div className="relative">
+                        <ListAlerts alerts={alerts} />
+                        <button
+                            onClick={refreshAlerts}
+                            className="absolute top-2 right-2 p-2 text-5xl rounded transition duration-300 hover:bg-blue-600"
+                        >
+                            ⟳
+                        </button>
+                    </div>
+                    <div className="my-4"></div>
                     <ListRules rules={rules} />
                 </div>
             </div>

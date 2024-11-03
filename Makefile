@@ -6,6 +6,11 @@ run:
 	@echo "Running the server..."
 	@pnpm dev
 
+.PHONY: run_public
+run_public:
+	@echo "Running the server..."
+	@pnpm dev_public
+
 .PHONY: init
 init:
 	@echo "Installing dependencies..."

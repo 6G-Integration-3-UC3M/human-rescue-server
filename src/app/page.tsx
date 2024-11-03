@@ -35,6 +35,7 @@ export default function Dashboard() {
         <MainLayout>
             <div className="mb-4">
                 <ListDrones drones={drones}/>
+                <div className="my-4"></div>
                 <ListMissions missions={missions}/>
             </div>
         </MainLayout>

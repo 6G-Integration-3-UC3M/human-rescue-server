@@ -30,7 +30,7 @@ export default function List({ detections }) {
     return (
         <div className="space-y-3 items-center">
             <h1 className="text-2xl font-bold">Detections</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {detections && detections.map((detection) => (
                     <div
                         key={detection.id}
@@ -39,7 +39,7 @@ export default function List({ detections }) {
                     >
                         <div className="flex-grow">
                             <h2 className="text-xl font-bold">{detection.detectedObject}</h2>
-                            <p>Confidence: {detection.confidence}</p>
+                            <p>Confidence: {detection.confidence.toFixed(2)}</p>
                             <p className="text-sm text-gray-500">Created at: {formatDate(detection.timestamp)}</p>
                         </div>
                         {/* Image display */}
@@ -60,13 +60,17 @@ export default function List({ detections }) {
                 <DialogTrigger asChild>
                     <div />
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] overflow-hidden">
                     <DialogHeader>
                         <DialogTitle>Detection</DialogTitle>
                         <DialogDescription>
                         </DialogDescription>
                     </DialogHeader>
-                    <img src={selectedImage} alt="Detection" className="max-w-full h-auto rounded-md" />
+                    <img
+                        src={selectedImage}
+                        alt="Detection"
+                        className="w-full h-full object-cover rounded-md"
+                    />
                 </DialogContent>
             </Dialog>
         </div>
