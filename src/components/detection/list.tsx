@@ -14,17 +14,17 @@ import {
 } from "@/components/ui/dialog";
 
 export default function List({ detections }) {
-    const [selectedImage, setSelectedImage] = useState('');
+    const [selectedDetection, setSelectedDetection] = useState({});
     const [isOpen, setIsOpen] = useState(false);
 
-    const openDialog = (imageUrl) => {
-        setSelectedImage(imageUrl);
+    const openDialog = (detection) => {
+        setSelectedDetection(detection);
         setIsOpen(true);
     };
 
     const closeDialog = () => {
         setIsOpen(false);
-        setSelectedImage('');
+        setSelectedDetection({});
     };
 
     return (
@@ -35,11 +35,13 @@ export default function List({ detections }) {
                     <div
                         key={detection.id}
                         className="bg-white shadow-md rounded-md p-4 flex items-start overflow-hidden h-32 cursor-pointer" // Added cursor pointer
-                        onClick={() => openDialog(`/api/image/get?id=${detection.id}`)} // Open dialog on click
+                        onClick={
+                        () => openDialog(detection)}
                     >
                         <div className="flex-grow">
                             <h2 className="text-xl font-bold">{detection.detectedObject}</h2>
                             <p>Confidence: {detection.confidence.toFixed(2)}</p>
+                            <p className="text-sm text-gray-500">{detection.description}</p>
                             <p className="text-sm text-gray-500">Created at: {formatDate(detection.timestamp)}</p>
                         </div>
                         {/* Image display */}
@@ -62,12 +64,13 @@ export default function List({ detections }) {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] overflow-hidden">
                     <DialogHeader>
-                        <DialogTitle>Detection</DialogTitle>
+                        <DialogTitle>{selectedDetection.detectedObject}</DialogTitle>
                         <DialogDescription>
+                            <p className="text-sm text-gray-500">{selectedDetection.description}</p>
                         </DialogDescription>
                     </DialogHeader>
                     <img
-                        src={selectedImage}
+                        src={`/api/image/get?id=${selectedDetection.id}`}
                         alt="Detection"
                         className="w-full h-full object-cover rounded-md"
                     />

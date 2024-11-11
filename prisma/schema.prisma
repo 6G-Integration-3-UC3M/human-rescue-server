@@ -148,6 +148,7 @@ model Detection {
   detectedObject   String        // Name of the detected object (e.g., 'human')
   confidence       Float         // Confidence score of the detection
   imageUrl         String?       // URL of the image where the object was detected
+  description      String?       // Description of the detection
   timestamp        DateTime      @default(now()) // Time when the detection was made
 
   drone            Drone         @relation(fields: [droneId], references: [id], onDelete: Cascade)

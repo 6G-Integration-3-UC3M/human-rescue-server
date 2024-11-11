@@ -11,5 +11,8 @@ export const findDetectionsForDrone = async (droneId) => {
         where: {
             droneId: parseInt(droneId),
         },
+        orderBy: {
+            timestamp: "desc", // Sorting by the most recent `createdAt` first
+        },
     });
 }

@@ -12,8 +12,8 @@ const detectionSchema = z.object({
     missionName: z.string().min(1),
     detectedObject: z.string().min(1),
     confidence: z.number().min(0).max(1),
-    // Assuming you want to add the timestamp as well
     timestamp: z.string().optional(), // Adjust if you have a specific format
+    description: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
         const detectedObject = formData.get('detectedObject');
         const confidence = parseFloat(formData.get('confidence'));
         const imageFile = formData.get('image');
+        const description = formData.get('description');
 
         // Validate input
         const validationResult = detectionSchema.safeParse({
@@ -36,6 +37,7 @@ export async function POST(req: Request) {
             missionName,
             detectedObject,
             confidence,
+            description,
             timestamp: new Date().toISOString(), // Add current timestamp
         });
 
@@ -128,6 +130,7 @@ export async function POST(req: Request) {
                 detectedObject: detectedObject,
                 confidence: confidence,
                 imageUrl: imageUrl,
+                description: description,
                 timestamp: new Date().toISOString(), // Add current timestamp if required
             },
         });
