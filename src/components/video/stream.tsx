@@ -5,7 +5,7 @@ export default function Stream() {
     const [connectionError, setConnectionError] = useState(null);
 
     useEffect(() => {
-        const socket = new WebSocket('ws://192.168.8.6:9999'); // Use wss:// if necessary
+        const socket = new WebSocket('ws://192.168.195.40:9999'); // Use wss:// if necessary
         socket.binaryType = 'arraybuffer';
 
         socket.onopen = () => {
@@ -45,8 +45,7 @@ export default function Stream() {
 
     return (
         <div>
-            {connectionError && <p>Error: {connectionError}</p>} {/* Show connection error if it exists */}
-            <img ref={videoRef} alt="Receiving video..." />
+            <img ref={videoRef} alt="" />
         </div>
     );
 }

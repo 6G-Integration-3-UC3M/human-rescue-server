@@ -42,7 +42,7 @@ export default function Drone() { // Changed component name for clarity
                 findDetectionsForDrone(id).then((res) => {
                     setDetections(res);
                 });
-            }, 5000);
+            }, 500);
 
             // Cleanup interval on component unmount
             return () => clearInterval(interval);
